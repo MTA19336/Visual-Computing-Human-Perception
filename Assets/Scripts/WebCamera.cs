@@ -64,7 +64,7 @@
 				Mat img = Unity.TextureToMat(activeCameraTexture);
 
 
-				activeCameraTexture = Unity.MatToTexture(img, rawImage.texture);
+				//activeCameraTexture = Unity.MatToTexture(img, rawImage.texture);
 			}
 		}
 
