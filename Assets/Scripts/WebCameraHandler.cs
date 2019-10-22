@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public abstract class WebCameraHandler : MonoBehaviour
 {
@@ -27,10 +25,10 @@ public abstract class WebCameraHandler : MonoBehaviour
 
     protected virtual void Update()
     {
-        WebCamInput(webCamTexture);
+		CamUpdate(webCamTexture);
     }
 
-    protected abstract void WebCamInput(WebCamTexture input);
+    protected abstract void CamUpdate(WebCamTexture input);
 
     [ContextMenu("Change Web Camera")]
     private void nextWebCamDevice()
