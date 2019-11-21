@@ -13,7 +13,6 @@ namespace OpenCvSharp
     /// Type of norm
     /// </summary>
 #endif
-    [Flags]
     public enum NormTypes : int
     {
         /// <summary>

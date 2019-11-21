@@ -11,7 +11,6 @@ namespace OpenCvSharp
     /// The method used to computed homography matrix
     /// </summary>
 #endif
-    [Flags]
     public enum HomographyMethods : int
     {
 #if LANG_JP

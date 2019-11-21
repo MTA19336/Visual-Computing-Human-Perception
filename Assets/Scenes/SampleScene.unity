@@ -170,6 +170,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e9c43b358d6b5d47af1a9c9286e31d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  requestedWidth: 1280
+  requestedHeight: 720
+  requestedFPS: 30
+  useMinAspect: 1
+  patterns:
+  - {fileID: 2800000, guid: 37bc740af11001140b3b78fd48a2126a, type: 3}
+  - {fileID: 2800000, guid: 4af961c6539b1b749a2f5aa3182e8f4b, type: 3}
+  - {fileID: 2800000, guid: 7c27087fc0abccc4e8121273182ba92f, type: 3}
+  - {fileID: 2800000, guid: f2e2b33e4bd054b4289163782e136633, type: 3}
+  - {fileID: 2800000, guid: f88ed25ba5f86f94a9f5190ae9b92edb, type: 3}
+  - {fileID: 2800000, guid: 1e8fcbe725876444c879288c94acb136, type: 3}
+  - {fileID: 2800000, guid: 436f7ad09703bf44ca1fb8118ba49902, type: 3}
+  - {fileID: 2800000, guid: 231824f73f186e547b52bf19ce05208b, type: 3}
+  - {fileID: 2800000, guid: a9b0034b4d0e3c645a3da690b7375a0a, type: 3}
+  - {fileID: 2800000, guid: 2ea7f050a9e6d484d8c39527ecf22245, type: 3}
+  - {fileID: 2800000, guid: afe9d41bf5981b142901a744a5f66172, type: 3}
+  - {fileID: 2800000, guid: fe036e7fb12ccfc4f9d2b860cd531957, type: 3}
+  - {fileID: 2800000, guid: a9f095428add8894dbdb29239c1c657a, type: 3}
+  - {fileID: 2800000, guid: 30ce5f24cfd298c4b81b8308f9f2c01e, type: 3}
+  - {fileID: 2800000, guid: c16ac12c38612484a9c3760e70f75cf9, type: 3}
+  - {fileID: 2800000, guid: 565a670832507ef479c5fa95874bb5ff, type: 3}
+  nFeatures: 1500
+  scalefactor: 1.2
+  nLevels: 8
+  edgeThreshold: 31
+  firstLevel: 0
+  wtaK: 2
+  scoreType: 0
+  patchsize: 31
+  checks: 32
+  eps: 0
+  sorted: 1
+  normType: 6
+  ratioThresh: 0.75
+  drawMatches: 0
+  minMatches: 15
+  homographyMethod: 8
+  ransacReprojThreshold: 3
 --- !u!114 &323775986
 MonoBehaviour:
   m_ObjectHideFlags: 0
