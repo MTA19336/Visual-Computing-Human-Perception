@@ -1,16 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using OpenCvSharp;
 using OpenCvSharp.Aruco;
-using System;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace OpenCvSharp.Demo {
-
-
     [RequireComponent(typeof(RawImage))]
 
     public class WebCamera : WebCameraHandler {
@@ -22,9 +18,11 @@ namespace OpenCvSharp.Demo {
         Mat image = new Mat();
         Mat poseEstimation = new Mat();
         public Texture2D treatedImg;
-        
-        //Camera calibration
-        bool cameraCalibrated;
+
+		public CalibrationData calibrationData = new CalibrationData();
+
+		//Camera calibration
+		bool cameraCalibrated;
         //Mat cameraMatrix = new Mat();
         //Mat distCoeffs = new Mat();
         
@@ -50,12 +48,18 @@ namespace OpenCvSharp.Demo {
             rawImage = gameObject.GetComponent<RawImage>();
             //(jsonString = File.ReadAllText(Application.dataPath + "/CameraCalibration/data.json");
             //Debug.Log(jsonString);
-            myCamInfo = JsonUtility.FromJson<CameraInfo>(File.ReadAllText(Application.dataPath + "/CameraCalibration/data.json"));
-            Debug.Log(myCamInfo.cameraMatrix);
-            //string[] strings = jsonString.Split(',');
-            //foreach (var word in strings) {
-            //    Debug.Log($"<{word}>");
-            //}
+            //myCamInfo = JsonUtility.FromJson<CameraInfo>(File.ReadAllText(Application.dataPath + "/CameraCalibration/data.json"));
+            //Debug.Log(myCamInfo.cameraMatrix);
+			//string[] strings = jsonString.Split(',');
+			//foreach (var word in strings) {
+			//    Debug.Log($"<{word}>");
+			//}
+			if (File.Exists(Application.dataPath + "/CameraCalibration/data.json")) {
+				calibrationData = JsonConvert.DeserializeObject<CalibrationData>(File.ReadAllText(Application.dataPath + "/CameraCalibration/data.json"));
+			} else {
+				Debug.Log("Camera Calibration data not found");
+			}
+			
         }
 
 
@@ -134,83 +138,16 @@ namespace OpenCvSharp.Demo {
             Cv2.Line(image, corners[2], corners[2], new Scalar(255, 0, 0));
             Cv2.Line(image, corners[3], corners[3], new Scalar(255, 0, 0));
         }
-
-        public class CameraInfo {
-            public float ret;
-            public string[][] cameraMatrix;
-            public float[] distCoeffs;
-            public float[][][] RadialVectors;
-            public float[][] translationVector;
-
-
-            public static CameraInfo createFromJSON(string jsonString) {
-                return JsonUtility.FromJson<CameraInfo>(jsonString);
-            }
-
-        }
-
     }
+
+	[System.Serializable]
+	public class CalibrationData {
+		public float ret;
+		public float[][] cameraMatrix;
+		public List<List<float>> distCoeffs;
+		public List<List<List<float>>> radialVectors;
+		public List<List<List<float>>> translationVectors;
+	}
 }
-//static void CamCalibration(Mat[] images) {
-
-//    Size imageSize = images[0].Size();
-//    Size patternSize = new Size(9, 6);
-//    Size regionSize = new Size(4, 4);
-//    Size rectangleSize = new Size(20f, 20f);
-
-//    List<List<Point2f>> imagePoints = new List<List<Point2f>>();
-//    List<List<Point3f>> objectPoints = new List<List<Point3f>>();
-
-//    var objectPoint = new List<Point3f>();
-//    for (int i = 0; i < patternSize.Height; i++) {
-//        for (int j = 0; j < patternSize.Width; j++) {
-//            objectPoint.Add(new Point3f(j * rectangleSize.Width, i * rectangleSize.Height, 0.0F));
-//        }
-//    }
-
-//    for (int i = 0; i < images.Length; i++) {
-
-//        Mat currentMat = images[i];
-
-//        Point2f[] corners;
-//        bool isFoundChessboard = Cv2.FindChessboardCorners(currentMat, patternSize, out corners);
-//        if (!isFoundChessboard) {
-//            continue;
-//        }
-
-//        bool isCornerSubpix = Cv2.Find4QuadCornerSubpix(currentMat, corners, regionSize);
-//        if (!isCornerSubpix) {
-//            continue;
-
-//        }
-
-//        imagePoints.Add(new List<Point2f>(corners));
 
 
-//        List<Point3f> objectPointMat = new List<Point3f>();
-//        foreach (Point3f item in objectPoint) {
-
-//            objectPointMat.Add(new Point3f(patternSize.Width * patternSize.Height, 1, item));
-//        }
-//        objectPoints.Add(objectPointMat);
-//    }
-
-//    var cameraMatrix = new double[3, 3];
-//    var distCoeffs = new double[8];
-//    Vec3d[] rvecs, tvecs;
-
-//    Cv2.CalibrateCamera(objectPoints, imagePoints, imageSize, cameraMatrix, distCoeffs, out rvecs, out tvecs);
-//}
-
-
-
-//         ___
-//        _| |_
-//  👌   c(¨^¨)ɔ   🤞
-//   \  /(. Y .)\  /
-//    \/  \   /  \/
-//        / * \
-//       (  Y  )
-//        \ | /
-//        |/ \|
-//       <d   b>
