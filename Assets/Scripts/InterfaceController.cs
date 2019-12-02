@@ -10,6 +10,7 @@ public class InterfaceController : MonoBehaviour
     Text infoName;
     Text claimButtonText;
     Text claimedByName;
+    Text fpsText;
     Button claimButton;
     RectTransform infoPanel;
     RectTransform canvasRectT;
@@ -23,6 +24,9 @@ public class InterfaceController : MonoBehaviour
     bool figureIsSelected;
     int selectedFigure;
     string userName;
+    public float averageFps;
+    int totalFrames = 0;
+    float current;
     Color32 green;
     Color32 red;
 
@@ -30,6 +34,8 @@ public class InterfaceController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //QualitySettings.vSyncCount = 0;
+        //Application.targetFrameRate = 30;
         //TESTING PURPOSES
         players = new List<PlayerClass>();
         userName = "Rick";
@@ -46,6 +52,7 @@ public class InterfaceController : MonoBehaviour
         claimButton = GameObject.Find("claimButton").GetComponent<Button>();
         claimButtonText = GameObject.Find("claimText").GetComponent<Text>();
         claimedByName = GameObject.Find("ClaimedByName").GetComponent<Text>();
+        fpsText = GameObject.Find("FPStext").GetComponent<Text>();
 
         figureIsSelected = false;
         green = new Color32(0, 144, 7, 255);
@@ -58,6 +65,10 @@ public class InterfaceController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        current = (int)(1f / Time.unscaledDeltaTime);
+        updateAverageFps(current);
+        fpsText.text = "FPS: " +current.ToString() + "\n" + "Average:  " + averageFps.ToString();
+
         if (figureIsSelected)
         {
             Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(Camera.main, figure1.GetComponent<Transform>().position);
@@ -134,6 +145,12 @@ public class InterfaceController : MonoBehaviour
 
         updateInfoPanelUI();
         showInfoPanel();
+    }
+
+    private void updateAverageFps(float newFps)
+    {
+        ++totalFrames;
+        averageFps += (newFps - averageFps) / totalFrames;
     }
 
     public void refreshFigureList()
