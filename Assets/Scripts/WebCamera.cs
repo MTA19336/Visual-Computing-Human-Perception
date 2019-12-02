@@ -1,4 +1,4 @@
-﻿namespace OpenCvSharp.Demo
+﻿namespace OpenCvSharp
 {
 	using UnityEngine;
 	using UnityEngine.UI;
@@ -21,7 +21,10 @@
 			rectTransform.sizeDelta = new Vector2(input.width * aspect, input.height * aspect);
 
 			rawImage.texture = input;
-		}
+
+            
+
+        }
 	}
 }
 
