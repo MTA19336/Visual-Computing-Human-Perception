@@ -11,17 +11,6 @@ namespace OpenCvSharp.Demo {
     [RequireComponent(typeof(RawImage))]
 
     public class WebCamera : WebCameraHandler {
-        [Serializable]
-        public class MarkerObject {
-            public int markerId;
-            public GameObject markerPrefab;
-        }
-
-        public class MarkerOnScene {
-            public int bestMatchIndex = -1;
-            public float destroyAt = -1f;
-            public GameObject gameObject = null;
-        }
 
         private RawImage rawImage;
         public int i = 0;
@@ -35,8 +24,9 @@ namespace OpenCvSharp.Demo {
         int[] markerIds;
         private Point2f[][] markerCorners, rejectedCandidates;
         Dictionary dictionary = CvAruco.GetPredefinedDictionary(PredefinedDictionaryName.Dict4X4_50);
+        TermCriteria criteria = (TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+        
         const float arucoSquareDim = 0.0273f; //in Meters
-        Size chessBoard = new Size(6, 9);
 
         double[] markerRvec, markerTvec;
         double[,] rotationMatrix;
@@ -44,6 +34,7 @@ namespace OpenCvSharp.Demo {
         [SerializeField] GameObject obj;
 
         [SerializeField] private bool UseMinAspect = true;
+        [SerializeField] public bool debug;
 
         protected override void Awake() {
             base.Awake();
@@ -100,39 +91,49 @@ namespace OpenCvSharp.Demo {
             double max_wh = (double)Math.Max(input.Cols, input.Rows);
             double fx = max_wh;
             double fy = max_wh;
-            double cx = Screen.width / 2.0d;
-            double cy = Screen.height / 2.0d;
+            double cx = input.Cols / 2.0d;
+            double cy = input.Rows / 2.0d;
             double[,] cameraMatrix = new double[3, 3] {
                 {fx, 0d, cx},
                 {0d, fy, cy},
                 {0d, 0d, 1d}
             };
+            double[] distCoeffs = new double[4] { 0d, 0d, 0d, 0d };
             Mat grey = input.CvtColor(ColorConversionCodes.BGR2GRAY);
             Dictionary dictionary = CvAruco.GetPredefinedDictionary(Aruco.PredefinedDictionaryName.Dict4X4_50);
             CvAruco.DetectMarkers(grey, dictionary, out markerCorners, out markerIds, DetectorParameters.Create(), out rejectedCandidates);
-            CvAruco.DrawDetectedMarkers(input, markerCorners, markerIds, new Scalar(0, 0, 255));
+            
+
+
 
             List<int> result = new List<int>();
             for (int i = 0; i < markerIds.Length; i++) {
+                //Cv2.Find4QuadCornerSubpix(grey, markerCorners[i], new Size(1, 1));
+                Cv2.CornerSubPix(grey, markerCorners[i],new Size(),new Size(-1,-1),TermCriteria)
+                Cv2.SolvePnP(markerPoints, markerCorners[i], cameraMatrix, distCoeffs, out markerRvec, out markerTvec, false, SolvePnPFlags.Iterative);
+                
+                if (debug) {
+                    CvAruco.DrawDetectedMarkers(input, markerCorners, markerIds, new Scalar(0, 0, 255));
+                    CvAruco.DrawAxis(input, cameraMatrix, distCoeffs, markerRvec, markerTvec, arucoSquareDim);
+                }
+                obj.transform.position = new Vector3((float)markerTvec[0], (float)-markerTvec[1] + (obj.GetComponent<Renderer>().bounds.size.y / 2), (float)markerTvec[2]);
 
-                Cv2.SolvePnP(markerPoints, markerCorners[i], cameraMatrix, calibrationData.distCoeffs.ToArray(), out markerRvec, out markerTvec, false, SolvePnPFlags.Iterative);
-                Debug.Log(markerRvec);
-                CvAruco.DrawAxis(input, cameraMatrix, calibrationData.distCoeffs, markerRvec, markerTvec, arucoSquareDim);
-                obj.transform.position = new Vector3((float)markerTvec[0], (float)-markerTvec[1], (float)markerTvec[2]);
-
-                Cv2.Rodrigues(markerRvec, out rotationMatrix);
-                Matrix4x4 matrix = new Matrix4x4();
-                matrix.SetRow(0, new Vector4((float)rotationMatrix[0, 0], (float)rotationMatrix[0, 1], (float)rotationMatrix[0, 2], (float)markerTvec[0]));
-                matrix.SetRow(1, new Vector4((float)rotationMatrix[1, 0], (float)rotationMatrix[1, 1], (float)rotationMatrix[1, 2], (float)markerTvec[1]));
-                matrix.SetRow(2, new Vector4((float)rotationMatrix[2, 0], (float)rotationMatrix[2, 1], (float)rotationMatrix[2, 2], (float)markerTvec[2]));
-                matrix.SetRow(3, new Vector4(0f, 0f, 0f, 1f));
-
-
-                result.Add(markerIds[i]);
-                markerTransforms.Add(matrix);
+                float theta = (float)(Math.Sqrt(markerRvec[0] * markerRvec[0] + markerRvec[1] * markerRvec[1] + Math.Abs(markerRvec[2] * markerRvec[2])) * 180/Math.PI);
+                Vector3 axis = new Vector3((float)markerRvec[0]+90, (float)markerRvec[1], Mathf.Abs((float)-markerRvec[2]));
+                Quaternion rot = Quaternion.AngleAxis(theta, axis);
+                //obj.transform.rotation = Quaternion.LookRotation(obj.transform.forward, new Vector3((float)markerRvec[0], (float)markerRvec[1], (float)markerRvec[2]));
+                //obj.transform.rotation = Quaternion.Euler((float)markerRvec[0] * Mathf.Rad2Deg, (float)markerRvec[1] * Mathf.Rad2Deg, (float)markerRvec[2] * Mathf.Rad2Deg);
+                Debug.Log((float)markerRvec[0]+" "+(float)markerRvec[1]+" "+(float)markerRvec[2]);
+                Debug.Log((float)markerRvec[0] * Mathf.Rad2Deg+ " "+ (float)markerRvec[1] * Mathf.Rad2Deg + " " + (float)markerRvec[2] * Mathf.Rad2Deg);
+                obj.transform.rotation = rot;
+                
             }
             return result;
         }
+        private void OnDrawGizmos() {
+            Gizmos.DrawLine(Vector3.zero, new Vector3((float)markerRvec[0], (float)markerRvec[1], (float)markerRvec[2]));
+        }
+
     }
 
     [System.Serializable]
