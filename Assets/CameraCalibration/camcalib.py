@@ -13,9 +13,7 @@ objpoints = []
 imgpoints = []
 i = 0
 
-file1 = open("cameraCalibration.txt", "w")
-
-while i < 10:
+while i < 50:
     image = webcam.get_current_frame()
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     ret, corners = cv2.findChessboardCorners(gray, (9, 6), None)
@@ -33,22 +31,19 @@ while i < 10:
 cv2.destroyAllWindows()
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
-# np.savez("webcam_calibration_output", ret=ret, mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
 rrvecs = []
+ttvecs = []
 data = {}
 data["return"] = ret
 data["cameraMatrix"] = mtx.tolist()
-data["distCoeffs"] = dist.tolist()
+data["distCoeffs"] = dist[0].tolist()
 for i in rvecs:
     rrvecs.append(i.tolist())
-data["radialVectors"] = rrvecs
+data["radialVectors"] = rrvecs[0]
 
-tvecsList = [[[]]]
 for i in tvecs:
-    tempList = [[]]
-    for j in i:
-        tempList.append(j.tolist())
-    tvecsList.append(tempList)
-data["translationVectors"] = tvecsList
+    ttvecs.append(i.tolist())
+data["translationVectors"] = ttvecs[0]
+
 with open("data.json", "w") as write_file:
     json.dump(data, write_file, indent=2)

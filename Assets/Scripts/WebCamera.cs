@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using OpenCvSharp.Aruco;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,144 +11,138 @@ namespace OpenCvSharp.Demo {
     [RequireComponent(typeof(RawImage))]
 
     public class WebCamera : WebCameraHandler {
+        [Serializable]
+        public class MarkerObject {
+            public int markerId;
+            public GameObject markerPrefab;
+        }
+
+        public class MarkerOnScene {
+            public int bestMatchIndex = -1;
+            public float destroyAt = -1f;
+            public GameObject gameObject = null;
+        }
+
         private RawImage rawImage;
         public int i = 0;
         [Range(0, 179)] public int LowH = 0, HighH = 179;
         [Range(0, 255)] public int LowS = 42, HighS = 255, LowV = 0, HighV = 255;
         private RectTransform rectTransform;
-        Mat image = new Mat();
-        Mat poseEstimation = new Mat();
-        public Texture2D treatedImg;
 
-		public CalibrationData calibrationData = new CalibrationData();
+        public CalibrationData calibrationData = new CalibrationData();
 
-		//Camera calibration
-		bool cameraCalibrated;
-        //Mat cameraMatrix = new Mat();
-        //Mat distCoeffs = new Mat();
-        
         //Aruco Markers
         int[] markerIds;
-        Point2f[][] markerCorners, rejectedCandidates;
+        private Point2f[][] markerCorners, rejectedCandidates;
         Dictionary dictionary = CvAruco.GetPredefinedDictionary(PredefinedDictionaryName.Dict4X4_50);
-        const float calibSquareDim = 0.024f; //in Meters
-        const float arucoSquareDim = 0.0246f; //in Meters
+        const float arucoSquareDim = 0.0273f; //in Meters
         Size chessBoard = new Size(6, 9);
+
+        double[] markerRvec, markerTvec;
+        double[,] rotationMatrix;
+        private List<Matrix4x4> markerTransforms = new List<Matrix4x4>();
+        [SerializeField] GameObject obj;
 
         [SerializeField] private bool UseMinAspect = true;
 
-        //JSON Variables
-        //private string jsonString;
-        CameraInfo myCamInfo = new CameraInfo();
-        
-
-
-    protected override void Awake() {
+        protected override void Awake() {
             base.Awake();
             rectTransform = gameObject.GetComponent<RectTransform>();
             rawImage = gameObject.GetComponent<RawImage>();
-            //(jsonString = File.ReadAllText(Application.dataPath + "/CameraCalibration/data.json");
-            //Debug.Log(jsonString);
-            //myCamInfo = JsonUtility.FromJson<CameraInfo>(File.ReadAllText(Application.dataPath + "/CameraCalibration/data.json"));
-            //Debug.Log(myCamInfo.cameraMatrix);
-			//string[] strings = jsonString.Split(',');
-			//foreach (var word in strings) {
-			//    Debug.Log($"<{word}>");
-			//}
-			if (File.Exists(Application.dataPath + "/CameraCalibration/data.json")) {
-				calibrationData = JsonConvert.DeserializeObject<CalibrationData>(File.ReadAllText(Application.dataPath + "/CameraCalibration/data.json"));
-			} else {
-				Debug.Log("Camera Calibration data not found");
-			}
-			
+            if (File.Exists(Application.dataPath + "/CameraCalibration/data.json")) {
+                calibrationData = JsonConvert.DeserializeObject<CalibrationData>(File.ReadAllText(Application.dataPath + "/CameraCalibration/data.json"));
+            } else {
+                Debug.Log("Camera Calibration data not found");
+            }
         }
+        protected override unsafe Mat ImageProcessing(Mat input) {
 
+            List<int> markerIdList = Detector(input);
 
-        protected override unsafe void CamUpdate(WebCamTexture input) {
-            float aspect = UseMinAspect ? Mathf.Min(Screen.width / (float)input.width, Screen.height / (float)input.height) : Mathf.Max(Screen.width / (float)input.width, Screen.height / (float)input.height);
-            rectTransform.sizeDelta = new Vector2(input.width * aspect, input.height * aspect);
+            //int count = 0;
+            //foreach (MarkerObject markerObject in markers) {
+            //    List<int> foundMarkers = new List<int>();
+            //    for (int i = 0; i < markerIdList; i++) {
+            //        if (markerIdList[i] == markerObject.markerId) {
+            //            foundMarkers.Add(i);
+            //            count++;
+            //        }
+            //    }
+            //    int index;
 
-            image = Unity.TextureToMat(input);
-            image.CvtColor(ColorConversionCodes.BGR2GRAY);
-            Dictionary dictionary = Aruco.CvAruco.GetPredefinedDictionary(Aruco.PredefinedDictionaryName.Dict4X4_50);
-            CvAruco.DetectMarkers(image, dictionary, out markerCorners, out markerIds, DetectorParameters.Create(), out rejectedCandidates);
-            CvAruco.DrawDetectedMarkers(image, markerCorners, markerIds, new Scalar(0, 0, 255));
+            //    index = gameObjects.Count - 1;
+            //    while (index >= 0) {
+            //        MarkerOnScene markerOnScene = gameObject[index];
+            //        markerOnScene.bestMatchIndex = -1;
+            //        if (markerOnScene.destroyAt > 0 && markerOnScene.destroyAt < Time.fixedTime) {
+            //            Destroy(markerOnScene.gameObject);
+            //            gameObjects.RemoveAt(index);
+            //        }
 
-            List<Point2f> foundPoints = new List<Point2f>();
-
-            Point2f[] foundPointsArray;
-            bool foundPatterns = false;
-
-            foundPatterns = Cv2.FindChessboardCorners(image, chessBoard, out foundPointsArray);
-            foundPointsArray.ToList();
-            //Cv2.DrawChessboardCorners(image, chessBoard, foundPoints, foundPatterns);
-            Point2f[] corners2 = Cv2.CornerSubPix(image, foundPointsArray, new Size(11, 11), new Size(-1, -1), TermCriteria.Both(30, 0.001));
-            //DrawOnInput(image, corners2);
-            //if (foundPatterns) {
-            //    treatedImg = Unity.MatToTexture((image), treatedImg);
-            //    rawImage.texture = treatedImg;
-            //} else {
-            //    treatedImg = Unity.MatToTexture(image), treatedImg);
-            //    rawImage.texture = treatedImg;
+            //    }
             //}
-            treatedImg = Unity.MatToTexture((image), treatedImg);
-            rawImage.texture = treatedImg;
 
-
-            if (Input.GetKeyDown(KeyCode.Space)) {
-                //get images
-
-            }
-            if (cameraCalibrated = false && Input.GetKeyDown(KeyCode.Return)) {
-                //calibrate
-                //CalibrateTheWebCamera();
-            }
-            if (Input.GetKey("escape")) {
-                //exit
-                return;
-            }
-
-        }
-        public void CalibrateTheWebCamera(List<Mat> calibrationImages) {
-
-            Size imgSize; imgSize.Height = calibrationImages[0].Height; imgSize.Width = calibrationImages[0].Width;
-            Size regionSize = new Size(4, 4);
-            Size rectangleSize = new Size(20f, 20f);
-
-            List<Mat> imgPoints = new List<Mat>();
-            List<Mat> objPoints = new List<Mat>();
-
-            Mat tempMat = new Mat();
-
-            Mat objPoint = new Mat();
-            for (int i = 0; i < chessBoard.Height; i++) {
-                for (int j = 0; j < chessBoard.Width; j++) {
-
-                    //objPoint.Add(new Point3f(j * rectangleSize.Width, i * rectangleSize.Height, 0.0f);
-                }
-            }
-
-            Mat[] radVector, transVector = new Mat[3];
-
-            //Cv2.CalibrateCamera(objPoints, imgPoints, imgSize, cameraMatrix, distCoeffs, out radVector, out transVector);
+            return input;
         }
 
-        public void DrawOnInput(Mat image, Point2f[] corners) {
+        protected override void CameraUpdate(Texture2D output) {
+            float aspect = UseMinAspect ? Mathf.Min(Screen.width / (float)output.width, Screen.height / (float)output.height) : Mathf.Max(Screen.width / (float)output.width, Screen.height / (float)output.height);
+            rectTransform.sizeDelta = new Vector2(output.width * aspect, output.height * aspect);
+            rawImage.texture = output;
+        }
+        protected List<int> Detector(Mat input) {
+            Point3f[] markerPoints = new Point3f[] {
+                new Point3f(-arucoSquareDim / 2f,  arucoSquareDim / 2f, 0f),
+                new Point3f( arucoSquareDim / 2f,  arucoSquareDim / 2f, 0f),
+                new Point3f( arucoSquareDim / 2f, -arucoSquareDim / 2f, 0f),
+                new Point3f(-arucoSquareDim / 2f, -arucoSquareDim / 2f, 0f)
+            };
+            double max_wh = (double)Math.Max(input.Cols, input.Rows);
+            double fx = max_wh;
+            double fy = max_wh;
+            double cx = Screen.width / 2.0d;
+            double cy = Screen.height / 2.0d;
+            double[,] cameraMatrix = new double[3, 3] {
+                {fx, 0d, cx},
+                {0d, fy, cy},
+                {0d, 0d, 1d}
+            };
+            Mat grey = input.CvtColor(ColorConversionCodes.BGR2GRAY);
+            Dictionary dictionary = CvAruco.GetPredefinedDictionary(Aruco.PredefinedDictionaryName.Dict4X4_50);
+            CvAruco.DetectMarkers(grey, dictionary, out markerCorners, out markerIds, DetectorParameters.Create(), out rejectedCandidates);
+            CvAruco.DrawDetectedMarkers(input, markerCorners, markerIds, new Scalar(0, 0, 255));
 
-            Cv2.Line(image, corners[0], corners[0], new Scalar(255, 0, 0));
-            Cv2.Line(image, corners[2], corners[2], new Scalar(255, 0, 0));
-            Cv2.Line(image, corners[3], corners[3], new Scalar(255, 0, 0));
+            List<int> result = new List<int>();
+            for (int i = 0; i < markerIds.Length; i++) {
+
+                Cv2.SolvePnP(markerPoints, markerCorners[i], cameraMatrix, calibrationData.distCoeffs.ToArray(), out markerRvec, out markerTvec, false, SolvePnPFlags.Iterative);
+                Debug.Log(markerRvec);
+                CvAruco.DrawAxis(input, cameraMatrix, calibrationData.distCoeffs, markerRvec, markerTvec, arucoSquareDim);
+                obj.transform.position = new Vector3((float)markerTvec[0], (float)-markerTvec[1], (float)markerTvec[2]);
+
+                Cv2.Rodrigues(markerRvec, out rotationMatrix);
+                Matrix4x4 matrix = new Matrix4x4();
+                matrix.SetRow(0, new Vector4((float)rotationMatrix[0, 0], (float)rotationMatrix[0, 1], (float)rotationMatrix[0, 2], (float)markerTvec[0]));
+                matrix.SetRow(1, new Vector4((float)rotationMatrix[1, 0], (float)rotationMatrix[1, 1], (float)rotationMatrix[1, 2], (float)markerTvec[1]));
+                matrix.SetRow(2, new Vector4((float)rotationMatrix[2, 0], (float)rotationMatrix[2, 1], (float)rotationMatrix[2, 2], (float)markerTvec[2]));
+                matrix.SetRow(3, new Vector4(0f, 0f, 0f, 1f));
+
+
+                result.Add(markerIds[i]);
+                markerTransforms.Add(matrix);
+            }
+            return result;
         }
     }
 
-	[System.Serializable]
-	public class CalibrationData {
-		public float ret;
-		public float[][] cameraMatrix;
-		public List<List<float>> distCoeffs;
-		public List<List<List<float>>> radialVectors;
-		public List<List<List<float>>> translationVectors;
-	}
+    [System.Serializable]
+    public class CalibrationData {
+        public float ret;
+        public double[,] cameraMatrix;
+        public List<double> distCoeffs;
+        public double[][] radialVectors;
+        public double[][] translationVectors;
+    }
 }
 
 
