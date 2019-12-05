@@ -74,7 +74,7 @@ namespace OpenCvSharp.Demo {
 
 				if(debug) {
 					CvAruco.DrawDetectedMarkers(input, markerCorners, markerIds, new Scalar(0, 0, 255));
-					CvAruco.DrawAxis(input, cameraMatrix, distCoeffs, markerRvec, markerTvec, ArucoSquareDim);
+					CvAruco.DrawAxis(input, cameraMatrix, distCoeffs, new double[] { markerRvec[0], markerRvec[1], markerRvec[2] }, markerTvec, ArucoSquareDim);
 				}
 
 				Marker m = markerObjects.FirstOrDefault(x => x.id == markerIds[i]);
@@ -85,9 +85,9 @@ namespace OpenCvSharp.Demo {
 					markerObjects.Add(m);
 				}
 
-				Vector3 positionVector = new Vector3((float)markerTvec[0], (float)-markerTvec[1], (float)markerTvec[2]);
+				Vector3 positionVector = new Vector3((float)markerTvec[0], -(float)markerTvec[1], (float)markerTvec[2]);
 				Vector3 rotationVector = new Vector3(-(float)markerRvec[0], (float)markerRvec[1], -(float)markerRvec[2]);
-				m.UpdateMarkerTransform(positionVector, rotationVector);
+				m.UpdateMarkerTransform(positionVector, Quaternion.AngleAxis(rotationVector.magnitude * Mathf.Rad2Deg, rotationVector));
 			}
 
 			return input;

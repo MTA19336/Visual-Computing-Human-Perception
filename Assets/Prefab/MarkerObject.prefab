@@ -45,6 +45,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultModel: {fileID: 688579639667245100, guid: a46ef787ac7a2644183fa6bde604e5ee,
     type: 3}
-  positionLerpTime: 0.5
-  rotationLerpTime: 0.05
-  timeSinceMarkerUpdateTimeout: 0.5
+  positionLerpTime: 0.75
+  rotationLerpTime: 0.5
+  timeSinceMarkerUpdateTimeout: 1
