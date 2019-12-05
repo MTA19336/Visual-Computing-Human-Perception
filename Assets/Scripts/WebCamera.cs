@@ -11,51 +11,44 @@ namespace OpenCvSharp.Demo {
 	[RequireComponent(typeof(RawImage))]
 	public class WebCamera : WebCameraHandler {
 
+		public static WebCamera instance = null;
 		private RawImage rawImage;
-		[Range(0, 179)] public int LowH = 0, HighH = 179;
-		[Range(0, 255)] public int LowS = 42, HighS = 255, LowV = 0, HighV = 255;
-		[SerializeField] GameObject obj;
-		[SerializeField] private bool UseMinAspect = true;
-		[SerializeField] public bool debug;
-
 		private RectTransform rectTransform;
-		public CalibrationData calibrationData = new CalibrationData();
-		Vector3 oldPos = Vector3.zero, oldRot = Vector3.zero;
-		public int i = 0;
-
-		//Aruco Markers
-		int[] markerIds;
-		private Point2f[][] markerCorners, rejectedCandidates;
-		Dictionary dictionary = CvAruco.GetPredefinedDictionary(PredefinedDictionaryName.Dict4X4_50);
-		const float arucoSquareDim = 0.0273f; //in Meters
-		private double[] markerRvec, markerTvec;
-		private List<Matrix4x4> markerTransforms = new List<Matrix4x4>();
-
-
-		//mutiple marker testing
-		[SerializeField] private GameObject markerPrefab;
-		[SerializeField] private List<MarkerModels> markerModels = new List<MarkerModels>();
 		private List<Marker> markerObjects = new List<Marker>();
 
+		[Header("Camera settings")]
+		[SerializeField] private bool UseMinAspect = true;
+		[SerializeField] private List<double> distCoeffs = new List<double>(5);
+
+		[Header("Aruco settings")]
+		[SerializeField] private bool debug;
+		[SerializeField] private float arucoSquareDim = 0.0273f; //in Meters
+		public float ArucoSquareDim { get { return arucoSquareDim; } }
+
+		[Header("Marker options")]
+		[SerializeField] private GameObject markerPrefab;
+		[SerializeField] private List<MarkerModels> markerModels = new List<MarkerModels>();
+
 		protected override void Awake() {
+			if(instance == null) {
+				instance = this;
+			} else {
+				Destroy(gameObject);
+			}
+
 			base.Awake();
 			rectTransform = gameObject.GetComponent<RectTransform>();
 			rawImage = gameObject.GetComponent<RawImage>();
-			if(File.Exists(Application.dataPath + "/CameraCalibration/data.json")) {
-				calibrationData = JsonConvert.DeserializeObject<CalibrationData>(File.ReadAllText(Application.dataPath + "/CameraCalibration/data.json"));
-			} else {
-				Debug.Log("Camera Calibration data not found");
-			}
 		}
 
 		protected override unsafe Mat ImageProcessing(Mat input) {
 
 			//This should be some inistilazation stuff
 			Point3f[] markerPoints = new Point3f[] {
-				new Point3f(-arucoSquareDim / 2f,  arucoSquareDim / 2f, 0f),
-				new Point3f( arucoSquareDim / 2f,  arucoSquareDim / 2f, 0f),
-				new Point3f( arucoSquareDim / 2f, -arucoSquareDim / 2f, 0f),
-				new Point3f(-arucoSquareDim / 2f, -arucoSquareDim / 2f, 0f)
+				new Point3f(-ArucoSquareDim / 2f,  ArucoSquareDim / 2f, 0f),
+				new Point3f( ArucoSquareDim / 2f,  ArucoSquareDim / 2f, 0f),
+				new Point3f( ArucoSquareDim / 2f, -ArucoSquareDim / 2f, 0f),
+				new Point3f(-ArucoSquareDim / 2f, -ArucoSquareDim / 2f, 0f)
 			};
 			double max_wh = Math.Max(input.Cols, input.Rows);
 			double fx = max_wh;
@@ -67,19 +60,21 @@ namespace OpenCvSharp.Demo {
 				{0d, fy, cy},
 				{0d, 0d, 1d}
 			};
-			double[] distCoeffs = new double[4] { 0d, 0d, 0d, 0d };
 			//This should be some inistilazation stuff
 
 
-
+			int[] markerIds;
+			Point2f[][] markerCorners, rejectedCandidates;
 			CvAruco.DetectMarkers(input.CvtColor(ColorConversionCodes.BGR2GRAY), CvAruco.GetPredefinedDictionary(PredefinedDictionaryName.Dict4X4_50), out markerCorners, out markerIds, DetectorParameters.Create(), out rejectedCandidates);
 
 			for(int i = 0; i < markerIds.Length; i++) {
+
+				double[] markerRvec, markerTvec;
 				Cv2.SolvePnP(markerPoints, markerCorners[i], cameraMatrix, distCoeffs, out markerRvec, out markerTvec, false, SolvePnPFlags.Iterative);
 
 				if(debug) {
 					CvAruco.DrawDetectedMarkers(input, markerCorners, markerIds, new Scalar(0, 0, 255));
-					CvAruco.DrawAxis(input, cameraMatrix, distCoeffs, markerRvec, markerTvec, arucoSquareDim);
+					CvAruco.DrawAxis(input, cameraMatrix, distCoeffs, markerRvec, markerTvec, ArucoSquareDim);
 				}
 
 				Marker m = markerObjects.FirstOrDefault(x => x.id == markerIds[i]);
@@ -103,15 +98,6 @@ namespace OpenCvSharp.Demo {
 			rectTransform.sizeDelta = new Vector2(output.width * aspect, output.height * aspect);
 			rawImage.texture = output;
 		}
-	}
-
-	[Serializable]
-	public class CalibrationData {
-		public float ret;
-		public double[,] cameraMatrix;
-		public List<double> distCoeffs;
-		public double[][] radialVectors;
-		public double[][] translationVectors;
 	}
 
 	[Serializable]

@@ -43,6 +43,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2152fc234663c9447a7225736ba50a40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultModel: {fileID: 3022464729373033452, guid: 2c7e942629dd7e44db0b2902311228cd,
+  defaultModel: {fileID: 688579639667245100, guid: a46ef787ac7a2644183fa6bde604e5ee,
     type: 3}
-  lerpSpeed: 0.1
+  positionLerpTime: 0.5
+  rotationLerpTime: 0.05
+  timeSinceMarkerUpdateTimeout: 0.5
