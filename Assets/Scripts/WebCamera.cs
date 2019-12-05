@@ -81,13 +81,13 @@ namespace OpenCvSharp.Demo {
 				if(m == null) {
 					m = Instantiate(markerPrefab).GetComponent<Marker>();
 					m.SetId(markerIds[i]);
-					m.SetModel(markerModels.FirstOrDefault(x => x.Id == i).Model);
+					m.SetModel(markerModels.FirstOrDefault(x => x.Id == markerIds[i]).Model);
 					markerObjects.Add(m);
 				}
 
 				Vector3 positionVector = new Vector3((float)markerTvec[0], -(float)markerTvec[1], (float)markerTvec[2]);
 				Vector3 rotationVector = new Vector3(-(float)markerRvec[0], (float)markerRvec[1], -(float)markerRvec[2]);
-				m.UpdateMarkerTransform(positionVector, Quaternion.AngleAxis(rotationVector.magnitude * Mathf.Rad2Deg, rotationVector));
+				m.UpdateMarkerTransform(positionVector, Quaternion.AngleAxis(rotationVector.magnitude * Mathf.Rad2Deg, rotationVector) * Quaternion.Euler(90, 0, 0));
 			}
 
 			return input;

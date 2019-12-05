@@ -285,7 +285,19 @@ MonoBehaviour:
   arucoSquareDim: 0.04
   markerPrefab: {fileID: 2591230189654367252, guid: f48b3de07e1190340b95a50a3fcb0d91,
     type: 3}
-  markerModels: []
+  markerModels:
+  - Model: {fileID: 4687684372685590639, guid: 38640127f1e66bb42896f4a46717b7b0, type: 3}
+    id: 40
+  - Model: {fileID: 6400578572299718742, guid: a4a2a83fbebeb5840a375cfc44aa5d8e, type: 3}
+    id: 35
+  - Model: {fileID: 688579639667245100, guid: a46ef787ac7a2644183fa6bde604e5ee, type: 3}
+    id: 45
+  - Model: {fileID: 8061628479018388988, guid: df6064badbcf0eb43b0de695bddd271d, type: 3}
+    id: 46
+  - Model: {fileID: 7981778827948054652, guid: 69ab22333296d4e4cb0436d2307fb134, type: 3}
+    id: 41
+  - Model: {fileID: 0}
+    id: 36
 --- !u!114 &323775986
 MonoBehaviour:
   m_ObjectHideFlags: 0
