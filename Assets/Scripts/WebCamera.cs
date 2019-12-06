@@ -29,7 +29,10 @@ namespace OpenCvSharp.Demo {
 		[SerializeField] private GameObject markerPrefab;
 		[SerializeField] private List<MarkerModels> markerModels = new List<MarkerModels>();
 
-		protected override void Awake() {
+        DetectorParameters detectorParameter = DetectorParameters.Create();
+        
+
+        protected override void Awake() {
 			if(instance == null) {
 				instance = this;
 			} else {
@@ -39,7 +42,12 @@ namespace OpenCvSharp.Demo {
 			base.Awake();
 			rectTransform = gameObject.GetComponent<RectTransform>();
 			rawImage = gameObject.GetComponent<RawImage>();
-		}
+
+            detectorParameter.DoCornerRefinement = true;
+            detectorParameter.CornerRefinementWinSize = 2;
+            detectorParameter.ErrorCorrectionRate = .001;
+
+        }
 
 		protected override unsafe Mat ImageProcessing(Mat input) {
 
@@ -65,7 +73,7 @@ namespace OpenCvSharp.Demo {
 
 			int[] markerIds;
 			Point2f[][] markerCorners, rejectedCandidates;
-			CvAruco.DetectMarkers(input.CvtColor(ColorConversionCodes.BGR2GRAY), CvAruco.GetPredefinedDictionary(PredefinedDictionaryName.Dict4X4_50), out markerCorners, out markerIds, DetectorParameters.Create(), out rejectedCandidates);
+			CvAruco.DetectMarkers(input.CvtColor(ColorConversionCodes.BGR2GRAY), CvAruco.GetPredefinedDictionary(PredefinedDictionaryName.Dict4X4_50), out markerCorners, out markerIds, detectorParameters, out rejectedCandidates);
 
 			for(int i = 0; i < markerIds.Length; i++) {
 
