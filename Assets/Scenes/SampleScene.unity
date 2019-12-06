@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 254680156}
   - component: {fileID: 254680155}
   m_Layer: 0
-  m_Name: WebCamera
+  m_Name: AR Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -234,7 +234,7 @@ GameObject:
   - component: {fileID: 323775986}
   - component: {fileID: 323775984}
   m_Layer: 5
-  m_Name: Web Camera
+  m_Name: Web Camera Surface
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -281,23 +281,43 @@ MonoBehaviour:
   - 0.01097823877441092
   - -0.014864931410326314
   - 1.4593051817050982
-  debug: 1
-  arucoSquareDim: 0.04
+  debug: 0
+  arucoSquareDim: 0.025
   markerPrefab: {fileID: 2591230189654367252, guid: f48b3de07e1190340b95a50a3fcb0d91,
     type: 3}
   markerModels:
-  - Model: {fileID: 4687684372685590639, guid: 38640127f1e66bb42896f4a46717b7b0, type: 3}
-    id: 40
-  - Model: {fileID: 6400578572299718742, guid: a4a2a83fbebeb5840a375cfc44aa5d8e, type: 3}
-    id: 35
-  - Model: {fileID: 688579639667245100, guid: a46ef787ac7a2644183fa6bde604e5ee, type: 3}
-    id: 45
-  - Model: {fileID: 8061628479018388988, guid: df6064badbcf0eb43b0de695bddd271d, type: 3}
-    id: 46
-  - Model: {fileID: 7981778827948054652, guid: 69ab22333296d4e4cb0436d2307fb134, type: 3}
-    id: 41
-  - Model: {fileID: 0}
-    id: 36
+  - Model: {fileID: 7981778827948054652, guid: fe0437c709ca50842848dc231fd8f1cd, type: 3}
+    id: 9
+  - Model: {fileID: 7981778827948054652, guid: fe0437c709ca50842848dc231fd8f1cd, type: 3}
+    id: 10
+  - Model: {fileID: 7981778827948054652, guid: fe0437c709ca50842848dc231fd8f1cd, type: 3}
+    id: 13
+  - Model: {fileID: 7981778827948054652, guid: fe0437c709ca50842848dc231fd8f1cd, type: 3}
+    id: 15
+  - Model: {fileID: 688579639667245100, guid: eb7c438f94e29bb45bcbfba1e4af2773, type: 3}
+    id: 16
+  - Model: {fileID: 688579639667245100, guid: eb7c438f94e29bb45bcbfba1e4af2773, type: 3}
+    id: 12
+  - Model: {fileID: 688579639667245100, guid: eb7c438f94e29bb45bcbfba1e4af2773, type: 3}
+    id: 14
+  - Model: {fileID: 688579639667245100, guid: eb7c438f94e29bb45bcbfba1e4af2773, type: 3}
+    id: 19
+  - Model: {fileID: 8061628479018388988, guid: 544d3f9594842314591779657ec143c5, type: 3}
+    id: 18
+  - Model: {fileID: 8061628479018388988, guid: 544d3f9594842314591779657ec143c5, type: 3}
+    id: 17
+  - Model: {fileID: 8061628479018388988, guid: 544d3f9594842314591779657ec143c5, type: 3}
+    id: 2
+  - Model: {fileID: 8061628479018388988, guid: 544d3f9594842314591779657ec143c5, type: 3}
+    id: 11
+  - Model: {fileID: 4687684372685590639, guid: 17baacd9e46b1204aac68540700fc26a, type: 3}
+    id: 4
+  - Model: {fileID: 4687684372685590639, guid: 17baacd9e46b1204aac68540700fc26a, type: 3}
+    id: 20
+  - Model: {fileID: 4687684372685590639, guid: 17baacd9e46b1204aac68540700fc26a, type: 3}
+    id: 8
+  - Model: {fileID: 4687684372685590639, guid: 17baacd9e46b1204aac68540700fc26a, type: 3}
+    id: 3
 --- !u!114 &323775986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -344,7 +364,7 @@ GameObject:
   - component: {fileID: 349272696}
   - component: {fileID: 349272695}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: AR Camera Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

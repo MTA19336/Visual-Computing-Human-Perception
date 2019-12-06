@@ -1,7 +1,4 @@
-﻿using OpenCvSharp.Demo;
-using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Marker : MonoBehaviour {
 
@@ -35,8 +32,10 @@ public class Marker : MonoBehaviour {
 		oldMarkerPosition = newMarkerPosition;
 		newMarkerPosition = pos;
 
-		oldMarkerRotation = newMarkerRotation;
-		newMarkerRotation = rot;
+		if((rot * Vector3.up).y > 0) {
+			oldMarkerRotation = newMarkerRotation;
+			newMarkerRotation = rot;
+		}
 	}
 
 
@@ -57,7 +56,6 @@ public class Marker : MonoBehaviour {
 			transform.position = newMarkerPosition;
 			transform.rotation = newMarkerRotation;
 		}
-
 	}
 
 	public void SetId(int v) {

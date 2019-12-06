@@ -43,8 +43,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2152fc234663c9447a7225736ba50a40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultModel: {fileID: 688579639667245100, guid: a46ef787ac7a2644183fa6bde604e5ee,
+  defaultModel: {fileID: 688579639667245100, guid: eb7c438f94e29bb45bcbfba1e4af2773,
     type: 3}
-  timeSinceMarkerUpdateTimeout: 1
-  positionLerpMax: 2
-  rotationLerpMax: 5
+  timeSinceMarkerUpdateTimeout: 0.25
+  positionLerpMax: 0.5
+  rotationLerpMax: 10
