@@ -77,7 +77,7 @@ namespace PaperPlaneTools.AR {
 		}
 
 		private void ProcessFrame (Mat mat, int width, int height) {
-			List<int> markerIds = markerDetector.Detect (mat, width, height);
+			List<int> markerIds = markerDetector.Detect(mat, width, height);
 
 			int count = 0;
 			foreach (MarkerObject markerObject in markers) {
