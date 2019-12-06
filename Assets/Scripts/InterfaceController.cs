@@ -10,10 +10,13 @@ public class InterfaceController : MonoBehaviour
     Text infoName;
     Text claimButtonText;
     Text claimedByName;
+    Text assignedModelName;
     Text fpsText;
     Button claimButton;
+    Button assignModelButton;
     RectTransform infoPanel;
     RectTransform canvasRectT;
+    ShowSelectedModel selectedModelScript;
     
 
     [SerializeField] public List<GameObject> figures;
@@ -22,6 +25,8 @@ public class InterfaceController : MonoBehaviour
     
 
     bool figureIsSelected;
+    bool showFps = true;
+    bool firstFrame = true;
     int selectedFigure;
     string userName;
     public float averageFps;
@@ -29,14 +34,12 @@ public class InterfaceController : MonoBehaviour
     float current;
     Color32 green;
     Color32 red;
+    Color32 gray;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        //QualitySettings.vSyncCount = 0;
-        //Application.targetFrameRate = 30;
-        //TESTING PURPOSES
         players = new List<PlayerClass>();
         userName = "Rick";
         for(int i = 0; i < 4; i++)
@@ -48,15 +51,19 @@ public class InterfaceController : MonoBehaviour
         figure1 = GameObject.Find("Figure1");
         infoName = GameObject.Find("FigureText").GetComponent<Text>();
         infoPanel = GameObject.Find("FigureInformationPanel").GetComponent<RectTransform>();
-        canvasRectT = GameObject.Find("UI_canvas").GetComponent<RectTransform>();
+        canvasRectT = GameObject.Find("Canvas").GetComponent<RectTransform>();
         claimButton = GameObject.Find("claimButton").GetComponent<Button>();
         claimButtonText = GameObject.Find("claimText").GetComponent<Text>();
         claimedByName = GameObject.Find("ClaimedByName").GetComponent<Text>();
+        assignedModelName = GameObject.Find("AssignedModelText").GetComponent<Text>();
         fpsText = GameObject.Find("FPStext").GetComponent<Text>();
+        assignModelButton = GameObject.Find("AssignModelButton").GetComponent<Button>();
+        selectedModelScript = GameObject.Find("ChosenModel").GetComponent<ShowSelectedModel>();
 
         figureIsSelected = false;
         green = new Color32(0, 144, 7, 255);
         red = new Color32(219, 0, 0, 255);
+        gray = new Color32(125, 125, 125, 255);
 
         hideInfoPanel();
         
@@ -65,9 +72,14 @@ public class InterfaceController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        current = (int)(1f / Time.unscaledDeltaTime);
-        updateAverageFps(current);
-        fpsText.text = "FPS: " +current.ToString() + "\n" + "Average:  " + averageFps.ToString();
+        if (showFps && !firstFrame)
+        {
+            current = (int)(1f / Time.unscaledDeltaTime);
+            updateAverageFps(current);
+            fpsText.text = "FPS: " + current.ToString() + "\n" + "Average:  " + averageFps.ToString();
+        }
+
+        if (firstFrame) { firstFrame = false; }
 
         if (figureIsSelected)
         {
@@ -116,15 +128,36 @@ public class InterfaceController : MonoBehaviour
 
     }//NOTHING HERE YET
 
-    private void updateInfoPanelUI()
+    public void updateInfoPanelUI()
     {
         claimedByName.text = figure1.GetComponent<FigureScript>().claimedBy();
+        assignedModelName.text = figure1.GetComponent<FigureScript>().getAssignedModelName();
+
+        if (figureIsSelected)
+        {
+            if (figure1.GetComponent<FigureScript>().hasModelAssigned && selectedModelScript.selectedModel == figure1.GetComponent<FigureScript>().assignedModelId)
+            {
+                assignModelButton.GetComponent<Image>().color = red;
+                assignModelButton.GetComponentInChildren<Text>().text = "Unassign model";
+            }
+            else
+            {
+                assignModelButton.GetComponent<Image>().color = green;
+                assignModelButton.GetComponentInChildren<Text>().text = "Assign model to Figure " + selectedFigure.ToString();
+            }
+        } else
+        {
+            assignModelButton.GetComponent<Image>().color = gray;
+            assignModelButton.GetComponentInChildren<Text>().text = "Select a figure to assign model";
+
+        }
     }
 
     public void unselectFigure()
     {
         figureIsSelected = false;
         hideInfoPanel();
+        updateInfoPanelUI();
     }
 
     public void setSelectedFigure(int id)
@@ -143,6 +176,7 @@ public class InterfaceController : MonoBehaviour
             setClaimButtonToUnclaimed();
         }
 
+       
         updateInfoPanelUI();
         showInfoPanel();
     }
@@ -175,6 +209,20 @@ public class InterfaceController : MonoBehaviour
             figure1.GetComponent<FigureScript>().claim(userName);
             setClaimButtonToClaimed();
         }
+        updateInfoPanelUI();
+    }
+
+    public void assignButtonOnClick()
+    {
+        if (figureIsSelected && figure1.GetComponent<FigureScript>().hasModelAssigned && selectedModelScript.selectedModel == figure1.GetComponent<FigureScript>().assignedModelId)
+        {
+            figure1.GetComponent<FigureScript>().unassignModel();
+        } else if (figureIsSelected)
+        {
+            figure1.GetComponent<FigureScript>().assignModel(selectedModelScript.selectedModel, selectedModelScript.getSelectedModelName());
+            assignedModelName.text = figure1.GetComponent<FigureScript>().getAssignedModelName();
+        }
+
         updateInfoPanelUI();
     }
 

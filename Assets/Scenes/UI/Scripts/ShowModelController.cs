@@ -18,19 +18,26 @@ public class ShowModelController : MonoBehaviour
         }
     }
 
-    public void EnableModels(Transform modelTransform)
+    public void EnableModels()
     {
-        for (int i = 0; i < transform.childCount; i++)
+        for(int i = 0; i < models.Count; i++)
         {
-            var transformToToggle = transform.GetChild(i);
-            bool shouldBeActive = transformToToggle == modelTransform;
-
-            transformToToggle.gameObject.SetActive(true);
+            models[i].gameObject.SetActive(true);
         }
     }
 
     public List<Transform> GetModels()
     {
         return new List<Transform>(models);
+    }
+
+    public List<GameObject> GetGameObjects()
+    {
+        List<GameObject> gameObjects = new List<GameObject>();
+        foreach(Transform model in models)
+        {
+            gameObjects.Add(model.gameObject);
+        }
+        return gameObjects;
     }
 }
