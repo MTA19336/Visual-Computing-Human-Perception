@@ -6,10 +6,17 @@ using System.Linq;
 using OpenCvSharp;
 
 [RequireComponent(typeof(Camera))]
-public class ARCamera : WebCameraHandler {
+public class ArucoMarkerDetector : WebCameraHandler {
 
-	public static ARCamera instance = null;
+	public static ArucoMarkerDetector instance = null;
 	private List<MarkerObject> markerObjects = new List<MarkerObject>();
+
+	double[,] cameraMatrix;
+	DetectorParameters detectorParameter = DetectorParameters.Create();
+	TermCriteria criteria = new TermCriteria(CriteriaType.Eps | CriteriaType.Count, 30, 0.001);
+	Point3f[] markerPoints;
+	Dictionary markerDictionary = CvAruco.GetPredefinedDictionary(PredefinedDictionaryName.Dict4X4_50);
+	private bool FirstImage = true;
 
 	[Header("Camera settings")]
 	[SerializeField] private List<double> distCoeffs = new List<double>(5);
@@ -22,11 +29,6 @@ public class ARCamera : WebCameraHandler {
 	[Header("Marker options")]
 	[SerializeField] private GameObject markerPrefab;
 	[SerializeField] private List<MarkerModels> markerModels = new List<MarkerModels>();
-
-	DetectorParameters detectorParameter = DetectorParameters.Create();
-	TermCriteria criteria = new TermCriteria(CriteriaType.Eps | CriteriaType.Count, 30, 0.001);
-	Point3f[] markerPoints;
-
 
 	protected override void Awake() {
 		if(instance == null) {
@@ -47,29 +49,31 @@ public class ARCamera : WebCameraHandler {
 		detectorParameter.CornerRefinementWinSize = 2;
 		detectorParameter.ErrorCorrectionRate = .001;
 
+
+
 	}
 
 	protected override unsafe Mat ImageProcessing(Mat input) {
-
-		//This should be some inistilazation stuff
-		double max_wh = Math.Max(input.Cols, input.Rows);
-		double fx = max_wh;
-		double fy = max_wh;
-		double cx = input.Cols / 2.0d;
-		double cy = input.Rows / 2.0d;
-		double[,] cameraMatrix = new double[3, 3] {
+		if(FirstImage) {
+			double max_wh = Math.Max(input.Cols, input.Rows);
+			double fx = max_wh;
+			double fy = max_wh;
+			double cx = input.Cols / 2.0d;
+			double cy = input.Rows / 2.0d;
+			cameraMatrix = new double[3, 3] {
 				{fx, 0d, cx},
 				{0d, fy, cy},
 				{0d, 0d, 1d}
 			};
-		//This should be some inistilazation stuff
+			FirstImage = false;
+		}
 
 		Mat greyImage = new Mat();
 		Cv2.CvtColor(input, greyImage, ColorConversionCodes.BGR2GRAY);
 
 		int[] markerIds;
 		Point2f[][] markerCorners, rejectedCandidates;
-		CvAruco.DetectMarkers(greyImage, CvAruco.GetPredefinedDictionary(PredefinedDictionaryName.Dict4X4_50), out markerCorners, out markerIds, detectorParameter, out rejectedCandidates);
+		CvAruco.DetectMarkers(greyImage, markerDictionary, out markerCorners, out markerIds, detectorParameter, out rejectedCandidates);
 
 		for(int i = 0; i < markerIds.Length; i++) {
 

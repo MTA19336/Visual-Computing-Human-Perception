@@ -23,7 +23,7 @@ public class MarkerObject : MonoBehaviour {
 		}
 		Model = Instantiate(m != null ? m : defaultModel, transform);
 
-		Model.transform.localScale = Vector3.one * ARCamera.instance.ArucoSquareDim;
+		Model.transform.localScale = Vector3.one * ArucoMarkerDetector.instance.ArucoSquareDim;
 	}
 
 	public void UpdateMarkerTransform(Vector3 pos, Quaternion rot) {
@@ -50,7 +50,7 @@ public class MarkerObject : MonoBehaviour {
 		}
 
 		if(oldMarkerPosition != Vector3.zero && oldMarkerRotation != Quaternion.identity) {
-			transform.position = Vector3.Lerp(transform.position, newMarkerPosition, (oldMarkerPosition - newMarkerPosition).magnitude / (ARCamera.instance.ArucoSquareDim * positionLerpMax));
+			transform.position = Vector3.Lerp(transform.position, newMarkerPosition, (oldMarkerPosition - newMarkerPosition).magnitude / (ArucoMarkerDetector.instance.ArucoSquareDim * positionLerpMax));
 			transform.rotation = Quaternion.Lerp(transform.rotation, newMarkerRotation, Quaternion.Angle(oldMarkerRotation, newMarkerRotation) / rotationLerpMax);
 		} else {
 			transform.position = newMarkerPosition;

@@ -4,17 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public abstract class WebCameraHandler : MonoBehaviour {
-	protected internal WebCamTexture webCamTexture;
-	protected internal Texture2D output;
+	private WebCamTexture webCamTexture;
+	private Texture2D output;
 	private RectTransform rectTransform;
 
 	[Header("Camera properties")]
-	[SerializeField] private bool UseMinAspect = true;
-	[SerializeField] private RawImage rawImage;
+	//[SerializeField] private bool UseMinAspect = true;
+	[SerializeField] private RawImage WebCameraSurface;
 
 	protected virtual void Awake() {
-		webCamTexture = new WebCamTexture();
-		rectTransform = rawImage.GetComponent<RectTransform>();
+		webCamTexture = new WebCamTexture(Screen.width, Screen.height);
+		Debug.Log(Screen.width + " : " + Screen.height);
+		rectTransform = WebCameraSurface.GetComponent<RectTransform>();
 	}
 
 	protected virtual void Start() {
@@ -34,9 +35,10 @@ public abstract class WebCameraHandler : MonoBehaviour {
 	protected virtual void Update() {
 		if(webCamTexture.didUpdateThisFrame) {
 			output = OpenCvSharp.Unity.MatToTexture(ImageProcessing(OpenCvSharp.Unity.TextureToMat(webCamTexture)), output);
-			float aspect = UseMinAspect ? Mathf.Min(Screen.width / (float)output.width, Screen.height / (float)output.height) : Mathf.Max(Screen.width / (float)output.width, Screen.height / (float)output.height);
+			//float aspect = UseMinAspect ? Mathf.Min(Screen.width / (float)output.width, Screen.height / (float)output.height) : Mathf.Max(Screen.width / (float)output.width, Screen.height / (float)output.height);
+			float aspect = Screen.height / (float)output.height;
 			rectTransform.sizeDelta = new Vector2(output.width * aspect, output.height * aspect);
-			rawImage.texture = output;
+			WebCameraSurface.texture = output;
 			webCamTexture.IncrementUpdateCount();
 		}
 	}

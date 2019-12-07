@@ -76,7 +76,7 @@ public class InterfaceController : MonoBehaviour
         {
             current = (int)(1f / Time.unscaledDeltaTime);
             updateAverageFps(current);
-            fpsText.text = "FPS: " + current.ToString() + "\n" + "Average:  " + averageFps.ToString();
+            //fpsText.text = "FPS: " + current.ToString() + "\n" + "Average:  " + averageFps.ToString();
         }
 
         if (firstFrame) { firstFrame = false; }
