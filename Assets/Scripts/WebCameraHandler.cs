@@ -1,62 +1,45 @@
 ﻿using OpenCvSharp;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.Android;
+using UnityEngine.UI;
 
 public abstract class WebCameraHandler : MonoBehaviour {
-	protected internal uint webCamDeviceIndex = 0;
 	protected internal WebCamTexture webCamTexture;
 	protected internal Texture2D output;
+	private RectTransform rectTransform;
 
-	[Header("Camera properties")] [SerializeField] protected internal uint requestedWidth = 1280;
-	[SerializeField] protected internal uint requestedHeight = 720, requestedFPS = 30;
+	[Header("Camera properties")]
+	[SerializeField] private bool UseMinAspect = true;
+	[SerializeField] private RawImage rawImage;
 
 	protected virtual void Awake() {
-		webCamTexture = new WebCamTexture((int)requestedWidth, (int)requestedHeight, (int)requestedFPS);
+		webCamTexture = new WebCamTexture();
+		rectTransform = rawImage.GetComponent<RectTransform>();
 	}
 
 	protected virtual void Start() {
-		if(WebCamTexture.devices.Length == 0) {
-			Debug.Log("WebCamDevice not found.");
-			return;
+		if(WebCamTexture.devices.Length != 0) {
+			webCamTexture.deviceName = WebCamTexture.devices.FirstOrDefault(x => !x.isFrontFacing).name;
+			if(webCamTexture == null) {
+				webCamTexture.deviceName = WebCamTexture.devices[0].name;
+			}
 		}
-		Debug.Log(WebCamTexture.devices.Length + " webCamTexture devices found");
-		webCamTexture.deviceName = WebCamTexture.devices[webCamDeviceIndex].name;
-		webCamTexture.Play();
+		if(webCamTexture == null) {
+			Debug.LogError("´No webcamera found");
+		} else {
+			webCamTexture.Play();
+		}
 	}
 
 	protected virtual void Update() {
 		if(webCamTexture.didUpdateThisFrame) {
 			output = OpenCvSharp.Unity.MatToTexture(ImageProcessing(OpenCvSharp.Unity.TextureToMat(webCamTexture)), output);
-			CameraUpdate(output);
+			float aspect = UseMinAspect ? Mathf.Min(Screen.width / (float)output.width, Screen.height / (float)output.height) : Mathf.Max(Screen.width / (float)output.width, Screen.height / (float)output.height);
+			rectTransform.sizeDelta = new Vector2(output.width * aspect, output.height * aspect);
+			rawImage.texture = output;
 			webCamTexture.IncrementUpdateCount();
 		}
 	}
 
 	protected abstract Mat ImageProcessing(Mat input);
-	protected abstract void CameraUpdate(Texture2D output);
-
-	[ContextMenu("Change Web Camera")]
-	private void nextWebCamDevice() {
-		webCamTexture.Stop();
-		if(webCamDeviceIndex >= WebCamTexture.devices.Length - 1) {
-			webCamDeviceIndex = 0;
-			webCamTexture.deviceName = WebCamTexture.devices[webCamDeviceIndex].name;
-		} else {
-			webCamDeviceIndex++;
-			webCamTexture.deviceName = WebCamTexture.devices[webCamDeviceIndex].name;
-		}
-		webCamTexture.requestedFPS = requestedFPS;
-		webCamTexture.requestedHeight = (int)requestedHeight;
-		webCamTexture.requestedWidth = (int)requestedWidth;
-		webCamTexture.Play();
-	}
-
-	[ContextMenu("Reload Web Camera")]
-	private void reloadWebCamDevice() {
-		webCamTexture.Stop();
-		webCamTexture.requestedFPS = requestedFPS;
-		webCamTexture.requestedHeight = (int)requestedHeight;
-		webCamTexture.requestedWidth = (int)requestedWidth;
-		webCamTexture.Play();
-	}
 }
