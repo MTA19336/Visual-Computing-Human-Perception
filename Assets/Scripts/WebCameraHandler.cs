@@ -14,7 +14,6 @@ public abstract class WebCameraHandler : MonoBehaviour {
 
 	protected virtual void Awake() {
 		webCamTexture = new WebCamTexture(Screen.width, Screen.height);
-		Debug.Log(Screen.width + " : " + Screen.height);
 		rectTransform = WebCameraSurface.GetComponent<RectTransform>();
 	}
 

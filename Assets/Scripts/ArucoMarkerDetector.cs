@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenCvSharp;
 
-[RequireComponent(typeof(Camera))]
 public class ArucoMarkerDetector : WebCameraHandler {
 
 	public static ArucoMarkerDetector instance = null;
@@ -24,7 +23,6 @@ public class ArucoMarkerDetector : WebCameraHandler {
 	[Header("Aruco settings")]
 	[SerializeField] private bool debug;
 	[SerializeField] private float arucoSquareDim = 0.0273f; //in Meters
-	public float ArucoSquareDim { get { return arucoSquareDim; } }
 
 	[Header("Marker options")]
 	[SerializeField] private GameObject markerPrefab;
@@ -40,10 +38,10 @@ public class ArucoMarkerDetector : WebCameraHandler {
 		base.Awake();
 
 		markerPoints = new Point3f[] {
-				new Point3f(-ArucoSquareDim / 2f,  ArucoSquareDim / 2f, 0f),
-				new Point3f( ArucoSquareDim / 2f,  ArucoSquareDim / 2f, 0f),
-				new Point3f( ArucoSquareDim / 2f, -ArucoSquareDim / 2f, 0f),
-				new Point3f(-ArucoSquareDim / 2f, -ArucoSquareDim / 2f, 0f)};
+				new Point3f(-arucoSquareDim / 2f,  arucoSquareDim / 2f, 0f),
+				new Point3f( arucoSquareDim / 2f,  arucoSquareDim / 2f, 0f),
+				new Point3f( arucoSquareDim / 2f, -arucoSquareDim / 2f, 0f),
+				new Point3f(-arucoSquareDim / 2f, -arucoSquareDim / 2f, 0f)};
 
 		detectorParameter.DoCornerRefinement = true;
 		detectorParameter.CornerRefinementWinSize = 2;
@@ -84,14 +82,14 @@ public class ArucoMarkerDetector : WebCameraHandler {
 
 			if(debug) {
 				CvAruco.DrawDetectedMarkers(input, markerCorners, markerIds, new Scalar(0, 0, 255));
-				CvAruco.DrawAxis(input, cameraMatrix, distCoeffs, markerRvec, markerTvec, ArucoSquareDim);
+				CvAruco.DrawAxis(input, cameraMatrix, distCoeffs, markerRvec, markerTvec, arucoSquareDim);
 			}
 
 			MarkerObject m = markerObjects.FirstOrDefault(x => x.id == markerIds[i]);
 			if(m == null) {
 				m = Instantiate(markerPrefab).GetComponent<MarkerObject>();
 				m.SetId(markerIds[i]);
-				m.SetModel(markerModels.FirstOrDefault(x => x.Id == markerIds[i]).Model);
+				m.SetModel(markerModels.FirstOrDefault(x => x.Id == markerIds[i]).Model, arucoSquareDim);
 				markerObjects.Add(m);
 			}
 

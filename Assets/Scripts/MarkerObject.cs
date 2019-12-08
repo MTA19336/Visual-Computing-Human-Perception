@@ -3,7 +3,9 @@
 public class MarkerObject : MonoBehaviour {
 
 	public GameObject Model { get; private set; }
+	public float size { get; private set; }
 	public int id { get; private set; }
+	[SerializeField] private GameObject SelectIndicator;
 	[SerializeField] private GameObject defaultModel;
 	[SerializeField] [Range(0f, 25f)] private float timeSinceMarkerUpdateTimeout = 1f, positionLerpMax = 1f;
 	[SerializeField] [Range(0f, 90f)] private float rotationLerpMax = 10f;
@@ -15,15 +17,28 @@ public class MarkerObject : MonoBehaviour {
 		if(Model == null) {
 			SetModel(defaultModel);
 		}
+		SelectIndicator.SetActive(false);
 	}
 
-	public void SetModel(GameObject m) {
+	public void SetModel(GameObject m, float s) {
 		if(Model != null) {
 			Destroy(Model);
+			Destroy(GetComponent<Collider>());
 		}
 		Model = Instantiate(m != null ? m : defaultModel, transform);
 
-		Model.transform.localScale = Vector3.one * ArucoMarkerDetector.instance.ArucoSquareDim;
+		SetSize(s);
+	}
+
+	public void SetModel(GameObject m) {
+		SetModel(m, size);
+	}
+
+	public void SetSize(float s) {
+		size = s;
+		Model.transform.localScale = Vector3.one * s;
+		SelectIndicator.transform.localScale = new Vector3(s * 1.5f, s * 2.5f, s * 1.5f);
+		SelectIndicator.transform.localPosition = Vector3.up * s * 1.25f;
 	}
 
 	public void UpdateMarkerTransform(Vector3 pos, Quaternion rot) {
@@ -38,6 +53,13 @@ public class MarkerObject : MonoBehaviour {
 		}
 	}
 
+	public MarkerObject Select() {
+		SelectIndicator.SetActive(true);
+		return this;
+	}
+	public void Deselect() {
+		SelectIndicator.SetActive(false);
+	}
 
 	private void Update() {
 		timeSinceMarkerUpdate += Time.deltaTime;
@@ -50,7 +72,7 @@ public class MarkerObject : MonoBehaviour {
 		}
 
 		if(oldMarkerPosition != Vector3.zero && oldMarkerRotation != Quaternion.identity) {
-			transform.position = Vector3.Lerp(transform.position, newMarkerPosition, (oldMarkerPosition - newMarkerPosition).magnitude / (ArucoMarkerDetector.instance.ArucoSquareDim * positionLerpMax));
+			transform.position = Vector3.Lerp(transform.position, newMarkerPosition, (oldMarkerPosition - newMarkerPosition).magnitude / (size * positionLerpMax));
 			transform.rotation = Quaternion.Lerp(transform.rotation, newMarkerRotation, Quaternion.Angle(oldMarkerRotation, newMarkerRotation) / rotationLerpMax);
 		} else {
 			transform.position = newMarkerPosition;
