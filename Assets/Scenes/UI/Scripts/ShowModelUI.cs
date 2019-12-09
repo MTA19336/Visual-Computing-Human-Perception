@@ -14,7 +14,7 @@ public class ShowModelUI : MonoBehaviour
 
     private void Start()
     {
-        //rect = GetComponent<RectTransform>();
+        rect = GetComponent<RectTransform>();
         //rect.offsetMin = new Vector2(rect.offsetMin.x, -Screen.height+65.5f);
         var models = FindObjectOfType<ShowModelController>().GetModels();
         foreach (var model in models)

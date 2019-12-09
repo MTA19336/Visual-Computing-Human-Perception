@@ -624,5 +624,50 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1566288017}
+    - target: {fileID: 2669104901014486711, guid: c4adb8171420b564891d7b402e4e6e99,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2669104900766425649, guid: c4adb8171420b564891d7b402e4e6e99,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 19.449951
+      objectReference: {fileID: 0}
+    - target: {fileID: 2669104901519292590, guid: c4adb8171420b564891d7b402e4e6e99,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 135.10004
+      objectReference: {fileID: 0}
+    - target: {fileID: 2669104902195645392, guid: c4adb8171420b564891d7b402e4e6e99,
+        type: 3}
+      propertyPath: m_ScreenMatchMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2669104902195645392, guid: c4adb8171420b564891d7b402e4e6e99,
+        type: 3}
+      propertyPath: m_ReferenceResolution.x
+      value: 600
+      objectReference: {fileID: 0}
+    - target: {fileID: 2669104902195645392, guid: c4adb8171420b564891d7b402e4e6e99,
+        type: 3}
+      propertyPath: m_ReferenceResolution.y
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 2669104902195645392, guid: c4adb8171420b564891d7b402e4e6e99,
+        type: 3}
+      propertyPath: m_MatchWidthOrHeight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2669104902696756371, guid: c4adb8171420b564891d7b402e4e6e99,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -167.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2669104902696756371, guid: c4adb8171420b564891d7b402e4e6e99,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 466.9
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c4adb8171420b564891d7b402e4e6e99, type: 3}
