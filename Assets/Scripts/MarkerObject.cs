@@ -5,6 +5,7 @@ public class MarkerObject : MonoBehaviour {
 	public GameObject Model { get; private set; }
 	public float size { get; private set; }
 	public int id { get; private set; }
+	[SerializeField] private int modelScale = 1;
 	[SerializeField] private GameObject SelectIndicator;
 	[SerializeField] private GameObject defaultModel;
 	[SerializeField] [Range(0f, 25f)] private float timeSinceMarkerUpdateTimeout = 1f, positionLerpMax = 1f;
@@ -36,7 +37,7 @@ public class MarkerObject : MonoBehaviour {
 
 	public void SetSize(float s) {
 		size = s;
-		Model.transform.localScale = Vector3.one * s;
+		Model.transform.localScale = Vector3.one * s * modelScale;
 		SelectIndicator.transform.localScale = new Vector3(s * 1.5f, s * 2.5f, s * 1.5f);
 		SelectIndicator.transform.localPosition = Vector3.up * s * 1.25f;
 	}

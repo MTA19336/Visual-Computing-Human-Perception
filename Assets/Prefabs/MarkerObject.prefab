@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2152fc234663c9447a7225736ba50a40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Scale: 1
   SelectIndicator: {fileID: 4594681051564596506}
   defaultModel: {fileID: 688579639667245100, guid: eb7c438f94e29bb45bcbfba1e4af2773,
     type: 3}
