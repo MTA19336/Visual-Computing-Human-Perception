@@ -7,6 +7,7 @@ public abstract class WebCameraHandler : MonoBehaviour {
 	private WebCamTexture webCamTexture;
 	private Texture2D output;
 	private RectTransform rectTransform;
+	private int currentId = 0;
 
 	[Header("Camera properties")]
 	//[SerializeField] private bool UseMinAspect = true;
@@ -18,17 +19,24 @@ public abstract class WebCameraHandler : MonoBehaviour {
 	}
 
 	protected virtual void Start() {
-		if(WebCamTexture.devices.Length != 0) {
-			webCamTexture.deviceName = WebCamTexture.devices.FirstOrDefault(x => !x.isFrontFacing).name;
-			if(webCamTexture == null) {
-				webCamTexture.deviceName = WebCamTexture.devices[0].name;
-			}
+		changeCamera(currentId);
+	}
+
+	public void changeCamera(int id) {
+		if(webCamTexture.isPlaying) {
+			webCamTexture.Stop();
 		}
-		if(webCamTexture == null) {
-			Debug.LogError("´No webcamera found");
-		} else {
-			webCamTexture.Play();
+		webCamTexture.deviceName = WebCamTexture.devices[id].name;
+		webCamTexture.Play();
+	}
+
+	[ContextMenu("nextCamera")]
+	public void nextCamera() {
+		currentId++;
+		if (currentId >= WebCamTexture.devices.Length) {
+			currentId = 0;
 		}
+		changeCamera(currentId);
 	}
 
 	protected virtual void Update() {

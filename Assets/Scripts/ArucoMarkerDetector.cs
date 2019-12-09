@@ -46,9 +46,6 @@ public class ArucoMarkerDetector : WebCameraHandler {
 		detectorParameter.DoCornerRefinement = true;
 		detectorParameter.CornerRefinementWinSize = 2;
 		detectorParameter.ErrorCorrectionRate = .001;
-
-
-
 	}
 
 	protected override unsafe Mat ImageProcessing(Mat input) {
