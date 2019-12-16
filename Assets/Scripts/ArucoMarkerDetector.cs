@@ -44,7 +44,7 @@ public class ArucoMarkerDetector : WebCameraHandler {
 				new Point3f(-arucoSquareDim / 2f, -arucoSquareDim / 2f, 0f)};
 
 		detectorParameter.DoCornerRefinement = true;
-		detectorParameter.CornerRefinementWinSize = 2;
+		detectorParameter.CornerRefinementWinSize = 3;
 		detectorParameter.ErrorCorrectionRate = .001;
 	}
 
@@ -73,8 +73,6 @@ public class ArucoMarkerDetector : WebCameraHandler {
 		for(int i = 0; i < markerIds.Length; i++) {
 
 			double[] markerRvec, markerTvec;
-
-			Cv2.CornerSubPix(greyImage, markerCorners[i], new Size(2, 2), new Size(-1, -1), criteria);
 			Cv2.SolvePnP(markerPoints, markerCorners[i], cameraMatrix, distCoeffs, out markerRvec, out markerTvec, false, SolvePnPFlags.Iterative);
 
 			if(debug) {
